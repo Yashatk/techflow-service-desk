@@ -1,0 +1,137 @@
+README.md
+  s_0f59e7edbb1265::t_ce3d7362d672fe 174
+  s_0f59e7edbb1265::t_9a8133a879c913 203-211
+  s_0f59e7edbb1265::t_75ddd7cfb051b2 121-123
+  s_0f59e7edbb1265::t_221151665df0d7 198-202
+  s_0f59e7edbb1265::t_9bc5a3882c4175 40
+  s_0f59e7edbb1265::t_f8f5bf2e8728d0 162
+  s_0f59e7edbb1265::t_9a5cd39efbc52f 178
+  s_0f59e7edbb1265::t_bdc76d90feb211 51-54
+  s_0f59e7edbb1265::t_31e73864561e3f 163
+  s_0f59e7edbb1265::t_a48e0ea291cb52 39
+  s_0f59e7edbb1265::t_501fc79a23fab6 78
+Techflow_Base/Techflow_Web_Fonte/src/main/resources/static/report.html
+  s_0f59e7edbb1265::t_195787298fb1a0 1-145
+.github/dependabot.yml
+  s_0f59e7edbb1265::t_0b09880ba91288 1-19
+.github/workflows/build.yml
+  s_0f59e7edbb1265::t_c3962b56980043 26-43
+Techflow_Base/Techflow_Web_Fonte/.env.example
+  s_0f59e7edbb1265::t_7167c8c56f1082 10-13
+Techflow_Base/Techflow_Web_Fonte/.gitignore
+  s_0f59e7edbb1265::t_015fae049ac5c9 39
+Techflow_Base/Techflow_Web_Fonte/pom.xml
+  s_0f59e7edbb1265::t_9881e368c777ee 38-51,162-186
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/config/CorrelationIdFilter.java
+  s_0f59e7edbb1265::t_0090aa3cf04b7e 1-43
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/config/CorsConfig.java
+  s_0f59e7edbb1265::t_997b921b035568 4,8,13-14,18,21-24,26-28,33
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/config/GlobalExceptionHandler.java
+  s_0f59e7edbb1265::t_c1840edfb6503e 1-30
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/config/PasswordConfig.java
+  s_0f59e7edbb1265::t_ca5b6f167953c5 1-16
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/config/SecurityConfig.java
+  s_0f59e7edbb1265::t_1e2a5b15a7546c 5-6,8,13,16,29-32,34,36-39
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/support/controller/TicketCategoryController.java
+  s_0f59e7edbb1265::t_da882324df9d3e 23-27
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/support/controller/TicketController.java
+  s_0f59e7edbb1265::t_936f6b30c7955f 27-31
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/support/controller/TicketPriorityController.java
+  s_0f59e7edbb1265::t_ba33cc68395543 17-21
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/support/controller/TicketStatusController.java
+  s_0f59e7edbb1265::t_eea0e8cb2c5079 18-22
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/support/report/TicketReportCalculator.java
+  s_0f59e7edbb1265::t_4b2d257da2f3e8 1-79
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/support/report/TicketReportController.java
+  s_0f59e7edbb1265::t_7762ef5da6cc28 1-29
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/support/report/TicketReportService.java
+  s_0f59e7edbb1265::t_0166b1645b448a 1-65
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/support/repository/TicketRepository.java
+  s_0f59e7edbb1265::t_3e8980f5341b63 3-5,12-13
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/support/service/TicketCategoryService.java
+  s_0f59e7edbb1265::t_d881fe8179fd33 22-26
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/support/service/TicketPriorityService.java
+  s_0f59e7edbb1265::t_53ea3ed5f6369f 21-25
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/support/service/TicketService.java
+  s_0f59e7edbb1265::t_5dfdb7ebf2d9da 36,38,40-46
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/support/service/TicketStatusService.java
+  s_0f59e7edbb1265::t_26c9f996c5e1ea 21-25
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/sys/controller/LoginController.java
+  s_0f59e7edbb1265::t_3abd9005d79243 5-6,11,19,21-32
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/sys/controller/SysAccessController.java
+  s_0f59e7edbb1265::t_2f7260f408a7af 19-23
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/sys/controller/SysGroupController.java
+  s_0f59e7edbb1265::t_c416d21afb529a 25-29
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/sys/controller/SysHistoryController.java
+  s_0f59e7edbb1265::t_37f6090c608b35 24-28
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/sys/controller/SysUserController.java
+  s_0f59e7edbb1265::t_8acec33e09d652 26-30
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/sys/domain/Utils.java
+  s_0f59e7edbb1265::t_14cc24d9839a82 5,10-13,18,22-25,29
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/sys/dto/LoginRequestDTO.java
+  s_0f59e7edbb1265::t_9952cb9519373c 1-5
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/sys/service/CommonService.java
+  s_0f59e7edbb1265::t_23f379cddf8321 10-14
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/sys/service/SysAccessService.java
+  s_0f59e7edbb1265::t_745e8c70c69a9f 18-22
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/sys/service/SysGroupService.java
+  s_0f59e7edbb1265::t_0ae24eb3044fea 18-22
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/sys/service/SysHistoryService.java
+  s_0f59e7edbb1265::t_1e60ba5ac64c93 29,31-36
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/sys/service/SysLoginService.java
+  s_0f59e7edbb1265::t_9f67d3eed9b0ce 7,29,31-39,48,50,85-101
+Techflow_Base/Techflow_Web_Fonte/src/main/java/com/techflow/ws/sys/service/SysUserService.java
+  s_0f59e7edbb1265::t_b73518ea304075 13,39,41,43,45,47,49-61,70,166-167,208,228
+Techflow_Base/Techflow_Web_Fonte/src/main/resources/application.yml
+  s_0f59e7edbb1265::t_f1382df1dad0bd 30-34,37,48-53
+Techflow_Base/Techflow_Web_Fonte/src/main/resources/db/migration/V1__baseline_schema.sql
+  s_0f59e7edbb1265::t_6607be10c51893 1-170
+Techflow_Base/Techflow_Web_Fonte/src/main/resources/log4j2.xml
+  s_0f59e7edbb1265::t_ff0262d610bd43 2,7,22,30,34
+Techflow_Base/Techflow_Web_Fonte/src/main/resources/static/about.html
+  s_0f59e7edbb1265::t_0939f6a8e68409 9-11
+Techflow_Base/Techflow_Web_Fonte/src/main/resources/static/blank_page.html
+  s_0f59e7edbb1265::t_b0ab964f93c1dd 9-11
+Techflow_Base/Techflow_Web_Fonte/src/main/resources/static/category.html
+  s_0f59e7edbb1265::t_8b6ac90202d59d 10-12
+Techflow_Base/Techflow_Web_Fonte/src/main/resources/static/css/theme-hud.css
+  s_0f59e7edbb1265::t_5e96dcc57828f8 629-672
+Techflow_Base/Techflow_Web_Fonte/src/main/resources/static/group.html
+  s_0f59e7edbb1265::t_6816c89b2d15fc 10-12
+Techflow_Base/Techflow_Web_Fonte/src/main/resources/static/history.html
+  s_0f59e7edbb1265::t_efbe78d8fa381c 10-12
+Techflow_Base/Techflow_Web_Fonte/src/main/resources/static/js/api.js
+  s_0f59e7edbb1265::t_32aaa973511726 14,53-60,64-69,71-86
+Techflow_Base/Techflow_Web_Fonte/src/main/resources/static/login.html
+  s_0f59e7edbb1265::t_535c847387828f 9-12,61
+Techflow_Base/Techflow_Web_Fonte/src/main/resources/static/sidebar.html
+  s_0f59e7edbb1265::t_a1246af847967f 15-17
+Techflow_Base/Techflow_Web_Fonte/src/main/resources/static/ticket.html
+  s_0f59e7edbb1265::t_481b58388a688b 10-12
+Techflow_Base/Techflow_Web_Fonte/src/main/resources/static/user.html
+  s_0f59e7edbb1265::t_05856f007cf3fc 10-12
+Techflow_Base/Techflow_Web_Fonte/src/test/java/com/techflow/ws/config/SecurityWebTest.java
+  s_0f59e7edbb1265::t_52c271ffc5c72e 1-99
+Techflow_Base/Techflow_Web_Fonte/src/test/java/com/techflow/ws/support/report/TicketReportCalculatorTest.java
+  s_0f59e7edbb1265::t_73f9757fbfe0ea 1-64
+Techflow_Base/Techflow_Web_Fonte/src/test/java/com/techflow/ws/sys/domain/UtilsTest.java
+  s_0f59e7edbb1265::t_5d1cb956c61f9d 8-9,19-34
+Techflow_Base/Techflow_Web_Fonte/src/test/java/com/techflow/ws/sys/service/SysLoginServiceTest.java
+  s_0f59e7edbb1265::t_e9557a5b22050a 1-73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "21820fd0dbc36da6ae00b22e13d7531aa967f877",
+  "prompts": {},
+  "sessions": {
+    "s_0f59e7edbb1265": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5b01d6fa-77b9-4a00-8e1d-39989fe7a513",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Andre Takamura <121062687+Yashatk@users.noreply.github.com>"
+    }
+  }
+}
