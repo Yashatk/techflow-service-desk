@@ -1,0 +1,18 @@
+﻿Techflow
+
+Versão: 1.0.0
+
+09/11/2025
+- Atualização das tabelas
+- Detalhes do chamado
+
+01/08/2025
+- Desenvolvimento inicial do Techflow.
+
+
+
+Desenvolvido por:
+- André Takashi Prado Takamura
+- Taina Lais Viana Mota - 
+- Fabrício dos Santos Cavalcante - 
+- Thiago - 

@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechFlow</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/style-table.css">
+  <link rel="stylesheet" href="/css/theme-hud.css">
+  <script src="/js/api.js"></script>
+  <script src="/js/vue.min.js"></script>  
+</head>
+<body>
+<div id="app">
+  <!-- Sidebar -->
+  <div id="sidebar-container"></div>
+  <!-- Header -->
+  <div id="header-container"></div>
+  <div class="my-5 main-content" :style="mainContentStyle">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">Chamados</h3>
+            <button class="btn btn-outline-primary" @click="showModal = true">Incluir Chamado</button>
+        </div>
+
+        <div class="d-flex flex-wrap gap-3 mb-3"> 
+            <div>
+                <label for="filterKey" class="form-label mb-0">Localizar</label>
+                <input id="filterKey" type="text" class="form-control" v-model="filters.key" placeholder="Buscar...">
+            </div>           
+            <div>
+                <label for="filterCategory" class="form-label mb-0">Categoria</label>
+                <select id="filterCategory" class="form-select" v-model="filters.category">
+                <option value="">Todas</option>
+                <option v-for="cat in categoryList" :key="cat.id" :value="cat.id">{{ cat.category }}</option>
+                </select>
+            </div>
+            <div>
+                <label for="filterPriority" class="form-label mb-0">Prioridade</label>
+                <select id="filterPriority" class="form-select" v-model="filters.priority">
+                <option value="">Todas</option>
+                <option v-for="pri in priorityList" :key="pri.id" :value="pri.id">{{ pri.priority }}</option>
+                </select>
+            </div>
+            <div>
+                <label for="filterStatus" class="form-label mb-0">Status</label>
+                <select id="filterStatus" class="form-select" v-model="filters.status">
+                <option value="">Todos</option>
+                <option v-for="stat in statusList" :key="stat.id" :value="stat.id">{{ stat.status }}</option>
+                </select>
+            </div>
+            <div>
+                <label for="filterStartDate" class="form-label mb-0">Data Inicial</label>
+                <input id="filterStartDate" type="datetime-local" class="form-control" v-model="filters.startDate">
+            </div>
+            <div>
+                <label for="filterEndDate" class="form-label mb-0">Data Final</label>
+                <input id="filterEndDate" type="datetime-local" class="form-control" v-model="filters.endDate">
+            </div>
+             <div class="align-self-end">
+                <button class="btn btn-outline-primary" @click="fetchData">Localizar</button>
+            </div>
+        </div>
+
+        <table class="table table-bordered table-hover" v-if="tableData.length" >
+        <thead class="table-light">
+            <tr>
+            <th @click="sortBy('id')" style="cursor:pointer" width="100px">
+                ID
+                <span v-if="sortColumn === 'id'">
+                <span v-if="sortAsc">&#9650;</span>
+                <span v-else>&#9660;</span>
+                </span>
+            </th>
+            <!-- 
+            <th @click="sortBy('createDate')" style="cursor:pointer" width="100px">
+                Data
+                <span v-if="sortColumn === 'createDate'">
+                <span v-if="sortAsc">&#9650;</span>
+                <span v-else>&#9660;</span>
+                </span>
+            </th>
+            -->
+            <th @click="sortBy('subject')" style="cursor:pointer">
+                Assunto
+                <span v-if="sortColumn === 'subject'">
+                <span v-if="sortAsc">&#9650;</span>
+                <span v-else>&#9660;</span>
+                </span>
+            </th>
+            <!-- <th style="width:200px;">Solicitante</th> -->
+            <th class="text-center" style="width:180px;">Status</th>
+            <th style="width:60px;"></th>
+            <th style="width:60px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="cat in sortedData" :key="cat.id">
+            <td>{{ cat.id }}</td>
+            <!-- <td>{{ formatDate(cat.createDate) }}</td> -->
+            <td><span class="text-muted" style="font-size: 12px;">Categoria: {{ cat.category.category }} | Prioridade: {{ cat.priority.priority }}</span><br>
+                {{ cat.subject }}<br>
+                <span class="text-muted" style="font-size: 12px;">Solicitado por {{ cat.user.name }} em {{ formatDate(cat.createDate) }}</span><br>
+                <span class="text-description" style="font-size: 12px;">{{ cat.description }}</span><br>
+            </td>
+            <!-- <td>{{ cat.user.name }}</td> -->
+            <td class="text-center">{{ cat.status.status }}</td>
+            <td class="text-center">
+            <button class="btn btn-sm btn-outline-primary" @click="editData(cat, '')" title="Editar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16" style="vertical-align:middle;margin-right:4px;">
+                    <path d="M12.146.854a.5.5 0 0 1 .708 0l2.292 2.292a.5.5 0 0 1 0 .708l-9.193 9.193a.5.5 0 0 1-.168.11l-4 1.5a.5.5 0 0 1-.65-.65l1.5-4a.5.5 0 0 1 .11-.168l9.193-9.193zm1.415 2.121L13 2.293 13.707 3l.561-.561a.5.5 0 0 0-.707-.707zm-1.768 1.768L3 13.293V14h.707l8.793-8.793-1.707-1.707zm-9.193 9.193l-.5 1.5 1.5-.5 8.793-8.793-1-1-8.793 8.793z"/>
+                </svg>                
+            </button>
+            </td>
+            <!--
+            <td class="text-center">
+            <button class="btn btn-sm btn-outline-primary" @click="editData(cat, 'comment')" title="Comentário">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chat-dots" viewBox="0 0 16 16" style="vertical-align:middle;margin-right:4px;">
+                    <path d="M2 2a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3.586l2.707 2.707a1 1 0 0 0 1.414 0l2.707-2.707H14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2zm0 1h12a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-3.586a1 1 0 0 0-.707.293l-2.707 2.707-2.707-2.707A1 1 0 0 0 5.586 11H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm3 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm3 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm3 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+                </svg>
+            </button>
+            </td>
+            -->
+            <td class="text-center">
+            <button class="btn btn-sm btn-outline-primary" @click="editData(cat, 'support')" title="Atendimento">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chat-dots" viewBox="0 0 16 16" style="vertical-align:middle;margin-right:4px;">
+                    <path d="M2 2a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3.586l2.707 2.707a1 1 0 0 0 1.414 0l2.707-2.707H14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2zm0 1h12a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-3.586a1 1 0 0 0-.707.293l-2.707 2.707-2.707-2.707A1 1 0 0 0 5.586 11H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm3 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm3 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm3 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+                </svg>
+            </button>
+            </td>            
+            </tr>
+        </tbody>
+        </table>
+        <div v-else class="text-muted">Nenhum chamado encontrado.</div>
+
+
+         <!-- Modal -->
+        <div class="modal fade" tabindex="-1" role="dialog" :class="{show: showModal}" style="display: block;" v-if="showModal">
+            <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content" :class="{ 'dark-modal': theme === 'dark' }">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ newItem.id && newItem.id > 0 ? newItem.modalType === 'comment' ? "Comentário" : newItem.modalType === 'support' ? "Atendimento" : "Editar Chamado" : "Incluir Chamado" }}</h5>
+                    <button type="button" class="btn btn-outline-secondary" @click="closeModal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form @submit.prevent="saveData">
+                    <div class="modal-body">
+                        <ul class="nav nav-tabs mb-3" :class="theme === 'dark' ? 'nav-tabs-dark' : ''" id="ticketModalTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                            <button class="nav-link" :class="{active: modalTab==='edit'}" @click="modalTab='edit'" type="button" role="tab">Dados</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                            <button class="nav-link" :class="{active: modalTab==='details'}" @click="modalTab='details'" type="button" role="tab">Atendimentos</button>
+                            </li>
+                        </ul>
+                        <div v-if="modalTab==='edit'">
+                            <div class="form-row d-flex gap-3">
+                            <div class="form-group flex-fill" v-if="newItem.id && newItem.id > 0">
+                                <label for="ticketId">Id</label>
+                                <input type="text" class="form-control" id="ticketId" v-model="newItem.id" disabled>
+                            </div>
+                            </div>
+                            <div class="form-row d-flex gap-3">
+                            <div class="form-group flex-fill">
+                                <label for="ticketCategory">Categoria</label>
+                                <select class="form-select" id="ticketCategory" v-model="newItem.categoryId" required>
+                                <option v-for="cat in categoryList" :key="cat.id" :value="cat.id">{{ cat.category }}</option>
+                                </select>
+                            </div>
+                            <div class="form-group flex-fill">
+                                <label for="ticketPriority">Prioridade</label>
+                                <select class="form-select" id="ticketPriority" v-model="newItem.priorityId" required>
+                                <option v-for="pri in priorityList" :key="pri.id" :value="pri.id">{{ pri.priority }}</option>
+                                </select>
+                            </div>
+                            </div>
+                            <div class="form-group">
+                            <label for="ticketSubject">Assunto</label>
+                            <input type="text" class="form-control" id="ticketSubject" v-model="newItem.subject" required>
+                            </div>
+                            <div class="form-group">
+                            <label for="ticketDescription">Descrição</label>
+                            <textarea class="form-control" id="ticketDescription" v-model="newItem.description" rows="3"></textarea>
+                            </div>
+                        </div>
+
+
+
+                        <div v-if="modalTab==='details'">
+                            <div class="mb-3 d-flex gap-2">
+                                <button class="btn btn-outline-primary" type="button" @click="changeSupportInput(1)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-telephone-fill" viewBox="0 0 16 16" style="vertical-align:middle;margin-right:4px;">
+                                    <path d="M3.654 1.328a.678.678 0 0 1 .252-.082c.08-.008.163.003.241.03.079.027.153.07.217.13l2.29 2.29c.329.329.445.81.293 1.234l-.547 1.64a.678.678 0 0 1-.252.082c-.08.008-.163-.003-.241-.03a.678.678 0 0 1-.217-.13L4.383 5.482a11.72 11.72 0 0 0 5.482 5.482l1.09-1.09a.678.678 0 0 1 .13-.217c.027-.078.038-.161.03-.241a.678.678 0 0 1 .082-.252l1.64-.547c.424-.152.905-.036 1.234.293l2.29 2.29c.06.064.103.138.13.217.027.078.038.161.03.241a.678.678 0 0 1-.082.252l-2.29 2.29a.678.678 0 0 1-.217.13c-.078.027-.161.038-.241.03a.678.678 0 0 1-.252-.082l-1.64-.547a.678.678 0 0 1-.293-1.234l1.09-1.09a11.72 11.72 0 0 0-5.482-5.482l-1.09 1.09a.678.678 0 0 1-1.234-.293l-.547-1.64z"/>
+                                    <path fill-rule="evenodd" d="M11.883 13.803c-1.07.342-2.29.197-3.197-.71l-.707-.707a1 1 0 0 1 0-1.414l.707-.707a1 1 0 0 1 1.414 0l.707.707c.907.907 1.052 2.127.71 3.197z"/>
+                                </svg>
+                                Comentário
+                                </button>
+                                <button class="btn btn-outline-primary" type="button" @click="changeSupportInput(2)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chat-dots" viewBox="0 0 16 16" style="vertical-align:middle;margin-right:4px;">
+                                    <path d="M2 2a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3.586l2.707 2.707a1 1 0 0 0 1.414 0l2.707-2.707H14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2zm0 1h12a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-3.586a1 1 0 0 0-.707.293l-2.707 2.707-2.707-2.707A1 1 0 0 0 5.586 11H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm3 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm3 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm3 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+                                </svg>
+                                Novo Atendimento
+                                </button>
+                            </div>
+
+                            <div v-if="supportInput > 0">
+                                <hr>
+                                <div class="form-group">
+                                    <label for="commentText">{{ supportInput > 1 ? 'Descrição do Atendimento' : 'Comentário' }}</label>
+                                    <textarea class="form-control" id="commentText" v-model="support.description" rows="3"></textarea>
+                                </div>
+
+                                <div class="form-group" v-if="supportInput > 1">
+                                    <label for="supportStatus">Status</label>
+                                    <select class="form-select" id="supportStatus" v-model="support.statusId">
+                                        <option v-for="stat in statusList" :key="stat.id" :value="stat.id">{{ stat.status }}</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="d-flex justify-content-end mt-3">
+                                    <button type="button" class="btn btn-outline-primary" @click="saveSupport(newItem, support)">{{ supportInput > 1 ? 'Salvar Atendimento' : 'Salvar Comentário' }}</button>
+                                </div>
+                            </div>
+
+                            <hr>
+                            
+                            <table class="table table-bordered table-hover" v-if="newItem.details && newItem.details.length">
+                                <thead>
+                                <tr>
+                                    <th>Atendimento</th>
+                                    <th width="180">Status</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr v-for="detail in newItem.details" :key="detail.id">
+                                    <td>{{ detail.description }}<br>
+                                        <span class="text-muted" style="font-size: 12px;">Atendido por {{ detail.user.name }} em {{ formatDate(detail.createDate) }}</span><br>
+                                    </td>
+                                    <td>{{ detail.status && detail.status.status }}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <div v-else class="text-muted">Nenhum atendimento encontrado.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" @click="closeModal">{{ modalTab==='edit' ? 'Cancelar' : 'Fechar' }} </button>
+                    <button type="submit" class="btn btn-outline-primary" v-show="modalTab==='edit'">Salvar</button>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+        <div v-if="showModal" class="modal-backdrop fade show"></div>        
+
+  </div>
+</div>
+<script>
+const SYS_PAGE_NAME="ticket.html";
+const SYS_MENU_ID="menu-ticket";
+
+const app = new Vue({
+  el: '#app',
+  data: {
+    theme: localStorage.getItem('centaura-theme') || 'dark',
+    sessionData: JSON.parse(localStorage.getItem('techflow_session')) || {},
+    tableData: [],
+    sortColumn: 'id',
+    sortAsc: true,
+    showModal: false,
+    newItem: { modalType: '', subject: '', description: '', categoryId: 1, priorityId: '4' },
+    filters: {
+        key: '',
+        category: '',
+        priority: '',
+        status: '',
+        startDate: '',
+        endDate: ''
+    },
+    categoryList: [],
+    priorityList: [],
+    statusList: [],
+    modalTab: 'edit',
+    supportInput: 0,
+    support: { description: '', statusId: '' }
+  },
+  computed: {
+    mainContentStyle() {
+      return {
+        paddingTop: '50px',
+        marginLeft: document.body.classList.contains('sidebar-hidden') ? '0' : '220px',
+        transition: 'margin-left 0.2s'
+      };
+    },
+    sortedData() {
+        let filtered = this.tableData;
+
+        if (this.filters.key) {
+        const key = this.filters.key.toLowerCase();
+        filtered = filtered.filter(t =>
+            (t.subject && t.subject.toLowerCase().includes(key)) ||
+            (t.description && t.description.toLowerCase().includes(key))
+        );
+        }
+        // Filter by startDate
+        if (this.filters.startDate) {
+        const start = new Date(this.filters.startDate);
+        filtered = filtered.filter(t => {
+            const d = new Date(t.createDate);
+            return d >= start;
+        });
+        }
+        // Filter by endDate
+        if (this.filters.endDate) {
+        const end = new Date(this.filters.endDate);
+        filtered = filtered.filter(t => {
+            const d = new Date(t.createDate);
+            return d <= end;
+        });
+        }
+        if (this.filters.category) {
+        filtered = filtered.filter(t => t.category && t.category.id == this.filters.category);
+        }
+        if (this.filters.priority) {
+        filtered = filtered.filter(t => t.priority && t.priority.id == this.filters.priority);
+        }
+        if (this.filters.status) {
+        filtered = filtered.filter(t => t.status && t.status.id == this.filters.status);
+        }
+      return [...filtered].sort((a, b) => {
+        let col = this.sortColumn;
+        if (a[col] < b[col]) return this.sortAsc ? -1 : 1;
+        if (a[col] > b[col]) return this.sortAsc ? 1 : -1;
+        return 0;
+      });
+    }
+  },
+  methods: {
+    formatDate(dateStr) {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        if (Number.isNaN(d.getTime())) return dateStr;
+        const pad = n => n.toString().padStart(2, '0');
+        return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    },
+    fetchData() {
+        const params = [];
+        if (this.filters.key) params.push(`key=${encodeURIComponent(this.filters.key)}`);
+        if (this.filters.category) params.push(`categoryId=${encodeURIComponent(this.filters.category)}`);
+        if (this.filters.priority) params.push(`priorityId=${encodeURIComponent(this.filters.priority)}`);
+        if (this.filters.status) params.push(`statusId=${encodeURIComponent(this.filters.status)}`);
+        if (this.filters.startDate) params.push(`startDate=${encodeURIComponent(this.filters.startDate)}:00`);
+        if (this.filters.endDate) params.push(`endDate=${encodeURIComponent(this.filters.endDate)}:59`);
+        const query = params.length ? '?' + params.join('&') : '';
+        
+        fetch('/api/support/ticket' + query)
+        .then(r => r.json())
+        .then(data => {
+            this.tableData = data.obj;
+        })
+        .catch(() => {
+            this.tableData = [];
+        });
+    },
+    sortBy(column) {
+      if (this.sortColumn === column) {
+        this.sortAsc = !this.sortAsc;
+      } else {
+        this.sortColumn = column;
+        this.sortAsc = true;
+      }
+    },
+    closeModal() {
+      this.showModal = false;
+      this.newItem = { modalType: '', id: '', subject: '', description: '', categoryId: '1', priorityId: '4' };
+    },
+    saveData() {
+      this.newItem.userId = this.sessionData.userId;
+      fetch('/api/support/ticket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(this.newItem)
+      })
+      .then(tfCheck)
+      .then(() => {
+        this.closeModal();
+        this.fetchData();
+      })
+      .catch(e => {
+        tfToast(e.message || 'Erro ao incluir chamado');
+      });
+    },
+    editData(cat, modalType) {
+        this.newItem = { ...cat };
+        this.newItem.modalType = modalType
+        if(modalType === 'comment' || modalType === 'support') {
+            this.modalTab = 'details';
+        } else {
+            this.modalTab = 'edit';
+        }
+        this.showModal = true;
+    },
+    fetchCategories() {
+        fetch('/api/support/ticket/category')
+        .then(r => r.json())
+        .then(data => {
+            this.categoryList = data.obj;
+        })
+        .catch(() => {
+            this.categoryList = [];
+        });
+    },
+    fetchPriorities() {
+        fetch('/api/support/ticket/priority')
+        .then(r => r.json())
+        .then(data => {
+            this.priorityList = data.obj;
+        })
+        .catch(() => {
+            this.priorityList = [];
+        });
+    },
+    fetchStatuses() {
+        fetch('/api/support/ticket/status')
+        .then(r => r.json())
+        .then(data => {
+            this.statusList = data.obj;
+        })
+        .catch(() => {
+            this.statusList = [];
+        });
+    },
+    saveSupport(ticket, support) {
+        if (!support.description) {
+            tfToast('O comentário não pode ser vazio.');
+            return;
+        }
+        
+        var postData = {
+            ticketId: ticket.id,
+            statusId: support.statusId,
+            description: support.description,
+            userId: this.sessionData.userId
+        };
+        this.support = { description: '', statusId: '' };
+        
+        fetch(`/api/support/ticket/detail`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(postData)
+        })
+        .then(tfCheck)
+        .then(() => {
+            this.support = { description: '', statusId: '' };
+            this.fetchData();
+            this.editData(ticket, 'support');
+            this.showModal = false;
+            this.supportInput = 0;
+        })
+        .catch(e => {
+            tfToast(e.message || 'Erro ao salvar atendimento.');
+        });        
+    },
+    changeSupportInput(type) {
+        if(this.supportInput == type) {
+            this.supportInput = 0;
+            this.support.statusId = '';
+        }
+        else {
+            this.supportInput = type;
+            if(type == 2) {
+                this.support.statusId = '2';    // Em Andamento
+            }
+            else {
+                this.support.statusId = '';
+            }
+        }
+    }
+  },
+  mounted() {
+    document.body.classList.remove('light','dark'); document.body.classList.add(this.theme);
+    this.fetchCategories();
+    this.fetchPriorities();
+    this.fetchStatuses();
+    this.fetchData();
+  }
+});
+
+
+</script>
+<script src="header.js"></script>
+<style>
+.text-description {
+    color: #207fab;
+}
+
+
+</style>
+</body>
+</html>
+
+

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechFlow</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/theme-hud.css">
+  <script src="/js/vue.min.js"></script>  
+</head>
+<body class="dark tf-login">
+<div id="app">
+  <main class="tf-login-card">
+    <section class="tf-login-card__brand">
+      <img src="/img/logo.png" alt="TechFlow">
+      <div>
+        <p>Gestão de chamados de suporte técnico</p>
+      </div>
+    </section>
+    <section class="tf-login-card__form">
+      <h1>Acessar</h1>
+      <p class="tf-subtitle">Entre com suas credenciais para continuar.</p>
+      <form>
+        <div class="mb-3">
+          <label for="username" class="form-label">Usuário</label>
+          <input type="text" class="form-control" id="username" placeholder="Digite seu usuário" autocomplete="username" required>
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Senha</label>
+          <input type="password" class="form-control" id="password" placeholder="Digite sua senha" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Entrar</button>
+      </form>
+      <div id="login-message" class="tf-login-msg" role="status">{{ loginMessage }}</div>
+      <div class="tf-login-footer">© 2025 TechFlow</div>
+    </section>
+  </main>
+</div>
+<script>
+
+const app = new Vue({
+  el: '#app',
+  data: {
+    //theme: localStorage.getItem('centaura-theme') || 'light',
+    loginMessage: ''
+  },
+  mounted() {
+    // Add login form handler
+    const form = document.querySelector('form');
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        this.loginMessage = '';
+        try {
+          const response = await fetch(`/api/login?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
+          const data = await response.json();
+          if (data && data.obj) {
+            localStorage.setItem('techflow_session', JSON.stringify(data.obj));
+            this.loginMessage = 'Login realizado com sucesso! Redirecionando...';
+            setTimeout(() => {
+              window.location.href = 'ticket.html';
+            }, 900);
+          } else {
+            this.loginMessage = data.message || 'Usuário ou senha inválidos.';
+          }
+        } catch (err) {
+          this.loginMessage = 'Erro ao conectar ao servidor.';
+        }
+      });
+    }
+  }
+});
+
+</script>
+</body>
+</html>
+

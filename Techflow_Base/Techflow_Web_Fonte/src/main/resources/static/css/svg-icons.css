@@ -1,0 +1,55 @@
+/**
+ * SVG Icon Styles
+ * For displaying SVG icons with proper sizing and alignment
+ */
+
+.svg-icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+}
+
+.svg-icon-xs {
+  width: 0.75em;
+  height: 0.75em;
+}
+
+.svg-icon-sm {
+  width: 1em;
+  height: 1em;
+}
+
+.svg-icon-md {
+  width: 1.5em;
+  height: 1.5em;
+}
+
+.svg-icon-lg {
+  width: 2em;
+  height: 2em;
+}
+
+/* Icon colors */
+.svg-icon-primary {
+  filter: invert(36%) sepia(38%) saturate(7414%) hue-rotate(208deg) brightness(97%) contrast(98%);
+}
+
+.svg-icon-danger {
+  filter: invert(24%) sepia(78%) saturate(5373%) hue-rotate(345deg) brightness(85%) contrast(93%);
+}
+
+.svg-icon-success {
+  filter: invert(62%) sepia(76%) saturate(415%) hue-rotate(83deg) brightness(93%) contrast(87%);
+}
+
+/* Special treatment for button icons */
+button .svg-icon,
+.btn .svg-icon {
+  margin-top: -3px;
+}
+
+/* For dark mode adjustments */
+body.dark .svg-icon {
+  /* Add specific dark mode styling if needed */
+}

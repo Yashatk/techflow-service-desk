@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechFlow</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/theme-hud.css">
+  <script src="/js/api.js"></script>
+  <script src="/js/vue.min.js"></script>  
+</head>
+<body>
+<div id="app">
+  <!-- Sidebar -->
+  <div id="sidebar-container"></div>
+  <!-- Header -->
+  <div id="header-container"></div>
+  <div class="my-5 main-content" :style="mainContentStyle">
+  <div class="tf-card">
+    <h3 class="mb-4">TechFlow Web <span class="badge bg-secondary">v1.0.0</span></h3>
+    <p>Sistema de Gestão de Chamados</p>
+    <h4>Desenvolvido por</h4>
+    <ul>
+      <li>André Takashi Prado Takamura</li>
+      <li>Tainara Lais Viana Mota</li>
+      <li>Fabrício dos Santos Cavalcanti</li>
+      <li>Thiago</li>
+    </ul>
+    <div>
+      <div class="mb-4">
+        <h5>v1.0.0 <small class="text-muted">(10/11/2025)</small></h5>
+        <ul>
+          <li>Versão inicial</li>
+        </ul>
+      </div>
+      <!-- Adicione sessões para versões futuras aqui -->
+    </div>
+  </div>
+  </div>
+</div>
+<script>
+const SYS_PAGE_NAME="about.html";
+const SYS_MENU_ID="menu-about";
+
+const app = new Vue({
+  el: '#app',
+  data: {
+    theme: localStorage.getItem('centaura-theme') || 'dark',
+  },
+  computed: {
+    mainContentStyle() {
+      return {
+        paddingTop: '50px',
+        marginLeft: document.body.classList.contains('sidebar-hidden') ? '0' : '220px',
+        transition: 'margin-left 0.2s'
+      };
+    }
+  },
+  mounted() {
+    document.body.classList.remove('light','dark'); document.body.classList.add(this.theme);
+  }
+});
+
+</script>
+<script src="header.js"></script>
+<style>
+
+</style>
+</body>
+</html>

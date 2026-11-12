@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechFlow</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/style-table.css">
+  <link rel="stylesheet" href="/css/theme-hud.css">
+  <script src="/js/api.js"></script>
+  <script src="/js/vue.min.js"></script>  
+</head>
+<body>
+<div id="app">
+  <!-- Sidebar -->
+  <div id="sidebar-container"></div>
+  <!-- Header -->
+  <div id="header-container"></div>
+  <div class="my-5 main-content" :style="mainContentStyle">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">Grupos de Acesso</h3>
+            <button class="btn btn-outline-primary" @click="showModal = true">Incluir Grupo</button>
+        </div>
+
+        <div class="d-flex flex-wrap gap-3 mb-3">
+          <div>
+            <label for="filterKey" class="form-label mb-0">Localizar</label>
+            <input id="filterKey" type="text" class="form-control" v-model="filters.key" placeholder="Buscar...">
+          </div>
+          <div>
+            <label for="filterAccess" class="form-label mb-0">Acesso</label>
+            <select id="filterAccess" class="form-select" v-model="filters.access">
+              <option value="">Todos</option>
+              <option v-for="acc in accessList" :key="acc.id" :value="acc.id">{{ acc.description }}</option>
+            </select>
+          </div>
+          <div class="align-self-end">
+              <button class="btn btn-outline-primary" @click="fetchData">Localizar</button>
+          </div>
+        </div>
+
+        <table class="table table-bordered table-hover" v-if="tableData.length" >
+        <thead class="table-light">
+            <tr>
+            <th @click="sortBy('id')" style="cursor:pointer" width="100px">
+                ID
+                <span v-if="sortColumn === 'id'">
+                <span v-if="sortAsc">&#9650;</span>
+                <span v-else>&#9660;</span>
+                </span>
+            </th>
+            <th @click="sortBy('groupName')" style="cursor:pointer">
+                Grupo
+                <span v-if="sortColumn === 'groupName'">
+                <span v-if="sortAsc">&#9650;</span>
+                <span v-else>&#9660;</span>
+                </span>
+            </th>
+            <th @click="sortBy('description')" style="cursor:pointer">
+                Descrição
+                <span v-if="sortColumn === 'description'">
+                <span v-if="sortAsc">&#9650;</span>
+                <span v-else>&#9660;</span>
+                </span>
+            </th>
+            <th style="width:400px;">Acessos</th>
+            <th style="width:90px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="cat in sortedData" :key="cat.id">
+            <td>{{ cat.id }}</td>
+            <td>{{ cat.groupName }}</td>
+            <td>{{ cat.description }}</td>
+            <td>
+              <ul>
+                <li v-for="acc in cat.accesses" :key="acc.id">{{ acc.description }}</li>
+              </ul>
+            </td>
+            <td align="center">
+            <button class="btn btn-sm btn-outline-primary" @click="editData(cat)">
+                Editar
+            </button>
+            </td>
+            </tr>
+        </tbody>
+        </table>
+        <div v-else class="text-muted">Nenhum grupo encontrado.</div>
+
+
+         <!-- Modal -->
+        <div class="modal fade" tabindex="-1" role="dialog" :class="{show: showModal}" style="display: block;" v-if="showModal">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content" :class="{ 'dark-modal': theme === 'dark' }">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ newItem.id && newItem.id > 0 ? 'Editar Grupo' : 'Incluir Grupo' }}</h5>
+                    <button type="button" class="btn btn-outline-secondary" @click="closeModal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form @submit.prevent="saveData">
+                    <div class="modal-body">
+                      <ul class="nav nav-tabs mb-3" :class="theme === 'dark' ? 'nav-tabs-dark' : ''" id="ticketModalTabs" role="tablist">
+                          <li class="nav-item" role="presentation">
+                          <button class="nav-link" :class="{active: modalTab==='edit'}" @click="modalTab='edit'" type="button" role="tab">Dados</button>
+                          </li>
+                          <li class="nav-item" role="presentation">
+                          <button class="nav-link" :class="{active: modalTab==='access'}" @click="modalTab='access'" type="button" role="tab">Acessos</button>
+                          </li>
+                      </ul>
+                      <div v-if="modalTab==='edit'">
+
+                        <div class="form-group" v-if="newItem.id && newItem.id > 0">
+                            <label for="groupId">Id</label>
+                            <input type="text" class="form-control" id="groupId" v-model="newItem.id" disabled>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="groupName">Grupo</label>
+                            <input type="text" class="form-control" id="groupName" v-model="newItem.groupName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="groupDescription">Descrição</label>
+                            <textarea class="form-control" id="groupDescription" v-model="newItem.description" rows="3"></textarea>
+                        </div>
+                        
+                      </div>
+
+                      <div v-if="modalTab==='access'">
+
+                          <div class="d-flex gap-2 mb-3">
+                            <select class="form-select" multiple v-model="selectedAccessIds" id="selectAccesses" aria-label="Acessos disponíveis" style="min-width:220px;">
+                              <option v-for="acc in accessList" :key="acc.id" :value="acc.id">{{ acc.description }}</option>
+                            </select>
+                            <button class="btn btn-outline-primary" type="button" @click="addSelectedAccesses" title="Adicionar Acessos">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16" style="vertical-align:middle;">
+                                <path d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2z"/>
+                              </svg>
+                            </button>
+                          </div>
+
+                         <table class="table table-bordered table-hover" v-if="newItem.accesses && newItem.accesses.length">
+                            <thead>
+                            <tr>
+                                <th>Acesso</th>
+                                <th width="60"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="access in newItem.accesses" :key="access.id">
+                                <td>{{ access.description }}</td>
+                                <td>
+                                  <button class="btn btn-sm btn-outline-danger" @click="removeAccess(access)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16" style="vertical-align:middle;">
+                                      <path d="M5.5 5.5A.5.5 0 0 1 6 5h4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5H6a.5.5 0 0 1-.5-.5v-7zm1 0v7h2v-7h-2z"/>
+                                      <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1H14a1 1 0 0 1 1 1v1zm-1-1V2H3v1h10z"/>
+                                    </svg>
+                                  </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div v-else class="text-muted">Nenhum acesso configurado.</div>
+                      </div>
+
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-outline-secondary" @click="closeModal">Cancelar</button>
+                      <button type="submit" class="btn btn-outline-primary">Salvar</button>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+        <div v-if="showModal" class="modal-backdrop fade show"></div>
+
+
+  </div>
+</div>
+<script>
+const SYS_PAGE_NAME="group.html";
+const SYS_MENU_ID="menu-group";
+
+const app = new Vue({
+  el: '#app',
+  data: {
+    theme: localStorage.getItem('centaura-theme') || 'dark',
+    sessionData: JSON.parse(localStorage.getItem('techflow_session')) || {},
+    tableData: [],
+    sortColumn: 'groupName',
+    sortAsc: true,
+    showModal: false,
+    newItem: { groupName: '' },
+    filters: {
+      key: '',
+      access: ''
+    },
+    accessList: [],
+    modalTab: 'edit',
+    selectedAccessIds: [],
+  },
+  computed: {
+    mainContentStyle() {
+      return {
+        paddingTop: '50px',
+        marginLeft: document.body.classList.contains('sidebar-hidden') ? '0' : '220px',
+        transition: 'margin-left 0.2s'
+      };
+    },
+    sortedData() {
+      let filtered = this.tableData;
+      if (this.filters.key) {
+        const key = this.filters.key.toLowerCase();
+        filtered = filtered.filter(g =>
+          (g.groupName && g.groupName.toLowerCase().includes(key)) ||
+          (g.id && g.id.toString().includes(key))
+        );
+      }
+      if (this.filters.access) {
+        filtered = filtered.filter(g =>
+          g.accesses && g.accesses.some(a => a.id == this.filters.access)
+        );
+      }
+      return [...filtered].sort((a, b) => {
+        let col = this.sortColumn;
+        if (a[col] < b[col]) return this.sortAsc ? -1 : 1;
+        if (a[col] > b[col]) return this.sortAsc ? 1 : -1;
+        return 0;
+      });
+    }
+  },
+  methods: {
+    fetchData() {
+        fetch('/api/sys/group')
+        .then(r => r.json())
+        .then(data => {
+            this.tableData = data.obj;
+        })
+        .catch(() => {
+            this.tableData = [];
+        });
+    },
+    fetchAccesses() {
+      fetch('/api/sys/access')
+        .then(r => r.json())
+        .then(data => {
+          this.accessList = data.obj;
+        })
+        .catch(() => {
+          this.accessList = [];
+        });
+    },
+    sortBy(column) {
+      if (this.sortColumn === column) {
+        this.sortAsc = !this.sortAsc;
+      } else {
+        this.sortColumn = column;
+        this.sortAsc = true;
+      }
+    },
+    closeModal() {
+      this.showModal = false;
+      this.newItem = { id: '', groupName: '' };
+    },
+    saveData() {
+      fetch('/api/sys/group', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(this.newItem)
+      })
+      .then(tfCheck)
+      .then(() => {
+        this.closeModal();
+        this.fetchData();
+      })
+      .catch(e => {
+        tfToast(e.message || 'Erro ao incluir grupo');
+      });
+    },
+    editData(cat) {
+        this.newItem = JSON.parse(JSON.stringify(cat));
+        this.showModal = true;
+    },
+    removeAccess(access) {
+      this.newItem.accesses = this.newItem.accesses.filter(a => a.id !== access.id);
+    },
+    addSelectedAccesses() {
+      if (!this.newItem.accesses) this.newItem.accesses = [];
+      this.selectedAccessIds.forEach(id => {
+        if (!this.newItem.accesses.some(a => a.id === id)) {
+          const acc = this.accessList.find(a => a.id === id);
+          if (acc) this.newItem.accesses.push(acc);
+        }
+      });
+      this.selectedAccessIds = [];
+    },
+  },
+  mounted() {
+    document.body.classList.remove('light','dark'); document.body.classList.add(this.theme);
+    this.fetchAccesses();
+    this.fetchData();
+  }
+});
+
+
+</script>
+<script src="header.js"></script>
+<style>
+
+</style>
+</body>
+</html>
+
+

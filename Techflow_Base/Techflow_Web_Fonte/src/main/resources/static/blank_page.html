@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechFlow</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/theme-hud.css">
+  <script src="/js/api.js"></script>
+  <script src="/js/vue.min.js"></script>  
+</head>
+<body>
+<div id="app">
+  <!-- Sidebar -->
+  <div id="sidebar-container"></div>
+  <!-- Header -->
+  <div id="header-container"></div>
+  <div class="my-5 main-content" :style="mainContentStyle">
+    <h3 class="mb-4">API Placa - Banco Histórico <span class="badge bg-secondary">v1.0.0</span></h3>
+    <div>
+      <div class="mb-4">
+        <h5>v1.0.0 <small class="text-muted">(25/09/2025)</small></h5>
+        <ul>
+          <li>{{ sessionData }}</li>
+          <li>{{ sessionData.name }}</li>
+        </ul>
+      </div>
+      <!-- Adicione sessões para versões futuras aqui -->
+    </div>
+  </div>
+</div>
+<script>
+const SYS_PAGE_NAME="ticket.html";
+const SYS_MENU_ID="menu-ticket";
+
+const app = new Vue({
+  el: '#app',
+  data: {
+    theme: localStorage.getItem('centaura-theme') || 'dark',
+    sessionData: JSON.parse(localStorage.getItem('techflow_session')) || {}
+  },
+  computed: {
+    mainContentStyle() {
+      return {
+        paddingTop: '50px',
+        marginLeft: document.body.classList.contains('sidebar-hidden') ? '0' : '220px',
+        transition: 'margin-left 0.2s'
+      };
+    }
+  },
+  mounted() {
+    document.body.classList.remove('light','dark'); document.body.classList.add(this.theme);
+  }
+});
+
+
+</script>
+<script src="header.js"></script>
+<style>
+
+
+</style>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechFlow</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/style-table.css">
+  <link rel="stylesheet" href="/css/theme-hud.css">
+  <script src="/js/api.js"></script>
+  <script src="/js/vue.min.js"></script>  
+</head>
+<body>
+<div id="app">
+  <!-- Sidebar -->
+  <div id="sidebar-container"></div>
+  <!-- Header -->
+  <div id="header-container"></div>
+  <div class="my-5 main-content" :style="mainContentStyle">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">Histórico</h3>
+            <!-- <button class="btn btn-primary" @click="showModal = true">Incluir Histórico</button> -->
+        </div>
+
+        <div class="d-flex flex-wrap gap-3 mb-3"> 
+            <div>
+                <label for="filterKey" class="form-label mb-0">Localizar</label>
+                <input id="filterKey" type="text" class="form-control" v-model="filters.key" placeholder="Buscar...">
+            </div>           
+            <div>
+                <label for="filterType" class="form-label mb-0">Tipo</label>
+                <select id="filterType" class="form-select" v-model="filters.type">
+                <option value="">Todas</option>
+                <option v-for="type in typeList" :key="type.id" :value="type.id">{{ type.value }}</option>
+                </select>
+            </div>
+            <div>
+                <label for="filterStartDate" class="form-label mb-0">Data Inicial</label>
+                <input id="filterStartDate" type="datetime-local" class="form-control" v-model="filters.startDate">
+            </div>
+            <div>
+                <label for="filterEndDate" class="form-label mb-0">Data Final</label>
+                <input id="filterEndDate" type="datetime-local" class="form-control" v-model="filters.endDate">
+            </div>
+             <div class="align-self-end">
+                <button class="btn btn-outline-primary" @click="fetchData">Localizar</button>
+            </div>
+        </div>
+
+        <table class="table table-bordered table-hover" v-if="tableData.length" >
+        <thead class="table-light">
+            <tr>
+            <th @click="sortBy('id')" style="cursor:pointer" width="100px">
+                ID
+                <span v-if="sortColumn === 'id'">
+                <span v-if="sortAsc">&#9650;</span>
+                <span v-else>&#9660;</span>
+                </span>
+            </th>
+            <th @click="sortBy('createDate')" style="cursor:pointer" width="100px">
+                Data
+                <span v-if="sortColumn === 'createDate'">
+                <span v-if="sortAsc">&#9650;</span>
+                <span v-else>&#9660;</span>
+                </span>
+            </th>
+            <th @click="sortBy('historyTypeId')" style="cursor:pointer">
+                Histórico
+                <span v-if="sortColumn === 'historyTypeId'">
+                <span v-if="sortAsc">&#9650;</span>
+                <span v-else>&#9660;</span>
+                </span>
+            </th>
+            <th @click="sortBy('description')" style="cursor:pointer">
+                Histórico
+                <span v-if="sortColumn === 'description'">
+                <span v-if="sortAsc">&#9650;</span>
+                <span v-else>&#9660;</span>
+                </span>
+            </th>           
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="cat in sortedData" :key="cat.id">
+            <td>{{ cat.id }}</td>
+            <td>{{ formatDate(cat.createDate) }}</td>
+            <td>{{ cat.historyTypeId }}</td>
+            <td>{{ cat.description }}</td>
+            </tr>
+        </tbody>
+        </table>
+        <div v-else class="text-muted">Nenhum historico encontrado.</div>
+
+
+  </div>
+</div>
+<script>
+const SYS_PAGE_NAME="history.html";
+const SYS_MENU_ID="menu-history";
+
+const app = new Vue({
+  el: '#app',
+  data: {
+    theme: localStorage.getItem('centaura-theme') || 'dark',
+    sessionData: JSON.parse(localStorage.getItem('techflow_session')) || {},
+    tableData: [],
+    sortColumn: 'createDate',
+    sortAsc: false,
+    filters: {
+        key: '',
+        type: '',
+        startDate: '',
+        endDate: '',
+        page: 1,
+        pageSize: 100
+    },
+    typeList: [],
+    
+  },
+  computed: {
+    mainContentStyle() {
+      return {
+        paddingTop: '50px',
+        marginLeft: document.body.classList.contains('sidebar-hidden') ? '0' : '220px',
+        transition: 'margin-left 0.2s'
+      };
+    },
+    sortedData() {
+        let filtered = this.tableData;
+
+        if (this.filters.key) {
+        const key = this.filters.key.toLowerCase();
+        filtered = filtered.filter(t =>
+            (t.subject && t.subject.toLowerCase().includes(key)) ||
+            (t.description && t.description.toLowerCase().includes(key))
+        );
+        }
+        // Filter by startDate
+        if (this.filters.startDate) {
+        const start = new Date(this.filters.startDate);
+        filtered = filtered.filter(t => {
+            const d = new Date(t.createDate);
+            return d >= start;
+        });
+        }
+        // Filter by endDate
+        if (this.filters.endDate) {
+        const end = new Date(this.filters.endDate);
+        filtered = filtered.filter(t => {
+            const d = new Date(t.createDate);
+            return d <= end;
+        });
+        }
+        if (this.filters.type) {
+        filtered = filtered.filter(t => t.historyTypeId && t.historyTypeId == this.filters.type);
+        }
+      return [...filtered].sort((a, b) => {
+        let col = this.sortColumn;
+        if (a[col] < b[col]) return this.sortAsc ? -1 : 1;
+        if (a[col] > b[col]) return this.sortAsc ? 1 : -1;
+        return 0;
+      });
+    }
+  },
+  methods: {
+    formatDate(dateStr) {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        if (Number.isNaN(d.getTime())) return dateStr;
+        const pad = n => n.toString().padStart(2, '0');
+        return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    },
+    fetchData() {
+        const params = [];
+        if (this.filters.key) params.push(`key=${encodeURIComponent(this.filters.key)}`);
+        if (this.filters.historyTypeId) params.push(`historyTypeId=${encodeURIComponent(this.filters.historyTypeId)}`);
+        if (this.filters.startDate) params.push(`startDate=${encodeURIComponent(this.filters.startDate)}:00`);
+        if (this.filters.endDate) params.push(`endDate=${encodeURIComponent(this.filters.endDate)}:59`);
+        params.push(`page=${encodeURIComponent(this.filters.page)}`);
+        params.push(`pageSize=${encodeURIComponent(this.filters.pageSize)}`);
+        const query = params.length ? '?' + params.join('&') : '';
+        
+        fetch('/api/sys/history' + query)
+        .then(r => r.json())
+        .then(data => {
+            this.tableData = data.obj;
+        })
+        .catch(() => {
+            this.tableData = [];
+        });
+    },
+    sortBy(column) {
+      if (this.sortColumn === column) {
+        this.sortAsc = !this.sortAsc;
+      } else {
+        this.sortColumn = column;
+        this.sortAsc = true;
+      }
+    },
+    fetchTypes() {
+        fetch('/api/sys/history/type')
+        .then(r => r.json())
+        .then(data => {
+            this.typeList = data.obj;
+        })
+        .catch(() => {
+            this.typeList = [];
+        });
+    }
+  },
+  mounted() {
+    document.body.classList.remove('light','dark'); document.body.classList.add(this.theme);
+    this.fetchTypes();
+    this.fetchData();
+  }
+});
+
+
+</script>
+<script src="header.js"></script>
+<style>
+
+</style>
+</body>
+</html>
+
+

@@ -1,0 +1,7 @@
+# Visual Studio build output and signing keys
+bin/
+obj/
+.vs/
+*.user
+*.pfx
+*.exe
