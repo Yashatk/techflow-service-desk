@@ -6,6 +6,9 @@
   <title>TechFlow</title>
   <link rel="stylesheet" href="/css/bootstrap.min.css">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&family=Inter:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="/css/theme-hud.css">
   <script src="/js/vue.min.js"></script>  
 </head>
@@ -55,7 +58,7 @@ const app = new Vue({
         const password = document.getElementById('password').value;
         this.loginMessage = '';
         try {
-          const response = await fetch(`/api/login?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
+          const response = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
           const data = await response.json();
           if (data && data.obj) {
             localStorage.setItem('techflow_session', JSON.stringify(data.obj));

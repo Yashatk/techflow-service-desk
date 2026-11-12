@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.techflow.ws.sys.converter.SysGroupConverter;
@@ -16,8 +15,11 @@ import com.techflow.ws.sys.repository.SysGroupRepository;
 @Service
 public class SysGroupService {
 
-    @Autowired
-    private SysGroupRepository sysGroupRepository;
+    private final SysGroupRepository sysGroupRepository;
+
+    public SysGroupService(SysGroupRepository sysGroupRepository) {
+        this.sysGroupRepository = sysGroupRepository;
+    }
 
     private static Logger log = LogManager.getLogger(SysGroupService.class);
 

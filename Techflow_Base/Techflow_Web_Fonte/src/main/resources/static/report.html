@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechFlow · Relatórios</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/style-table.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&family=Inter:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="/css/theme-hud.css">
+  <script src="/js/api.js"></script>
+  <script src="/js/vue.min.js"></script>
+</head>
+<body>
+<div id="app">
+  <div id="sidebar-container"></div>
+  <div id="header-container"></div>
+  <div class="my-5 main-content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3 class="mb-0">Relatórios</h3>
+    </div>
+
+    <div class="d-flex flex-wrap gap-3 mb-3">
+      <div>
+        <label for="filterStartDate" class="form-label mb-0">Data Inicial</label>
+        <input id="filterStartDate" type="datetime-local" class="form-control" v-model="filters.startDate">
+      </div>
+      <div>
+        <label for="filterEndDate" class="form-label mb-0">Data Final</label>
+        <input id="filterEndDate" type="datetime-local" class="form-control" v-model="filters.endDate">
+      </div>
+      <div class="align-self-end">
+        <button class="btn btn-outline-primary" @click="fetchData">Atualizar</button>
+      </div>
+    </div>
+    <p class="text-muted tf-report-period">{{ periodLabel }}</p>
+
+    <div v-if="report">
+      <section class="tf-stats" aria-label="Indicadores do período">
+        <div class="tf-stat"><span class="tf-stat__label">Chamados abertos no período</span><span class="tf-stat__value">{{ report.total }}</span></div>
+        <div class="tf-stat"><span class="tf-stat__label">Aguardando atendimento</span><span class="tf-stat__value">{{ report.open }}</span></div>
+        <div class="tf-stat"><span class="tf-stat__label">Em andamento</span><span class="tf-stat__value">{{ report.inProgress }}</span></div>
+        <div class="tf-stat"><span class="tf-stat__label">Resolvidos</span><span class="tf-stat__value">{{ report.resolved }}</span>
+          <span class="tf-stat__hint">{{ resolutionRate }}</span></div>
+        <div class="tf-stat"><span class="tf-stat__label">Tempo médio até resolução</span>
+          <span class="tf-stat__value">{{ avgResolution }}</span>
+          <span class="tf-stat__hint">da abertura à última atualização</span></div>
+      </section>
+
+      <div class="tf-charts">
+        <figure class="tf-chart" v-for="chart in charts" :key="chart.title">
+          <figcaption class="tf-chart__title">{{ chart.title }}</figcaption>
+          <div v-if="!chart.rows.length" class="text-muted">Sem chamados no período.</div>
+          <ul class="tf-bars" v-else>
+            <li class="tf-bar" v-for="row in chart.rows" :key="row.label"
+                :title="row.label + ': ' + row.total + ' chamado(s) — ' + share(row.total) + ' do total'">
+              <span class="tf-bar__label">{{ row.label }}</span>
+              <span class="tf-bar__track" aria-hidden="true"><span class="tf-bar__fill" :style="{ width: width(row.total, chart.max) }"></span></span>
+              <span class="tf-bar__value">{{ row.total }}</span>
+            </li>
+          </ul>
+        </figure>
+      </div>
+    </div>
+    <div v-else-if="!loading" class="text-muted">Nenhum dado para exibir.</div>
+  </div>
+</div>
+<script>
+const SYS_PAGE_NAME = "report.html";
+const SYS_MENU_ID = "menu-report";
+
+function toLocalInput(date) {
+  const pad = n => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+const app = new Vue({
+  el: '#app',
+  data: {
+    theme: localStorage.getItem('centaura-theme') || 'dark',
+    report: null,
+    loading: false,
+    filters: {
+      startDate: toLocalInput(new Date(Date.now() - 30 * 24 * 3600 * 1000)),
+      endDate: toLocalInput(new Date())
+    }
+  },
+  computed: {
+    periodLabel() {
+      const fmt = v => v ? new Date(v).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '—';
+      return `Período: ${fmt(this.filters.startDate)} até ${fmt(this.filters.endDate)}`;
+    },
+    avgResolution() {
+      const h = this.report && this.report.avgResolutionHours;
+      if (h === null || h === undefined) return '—';
+      return h < 24 ? `${h.toLocaleString('pt-BR')} h` : `${(h / 24).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} dias`;
+    },
+    resolutionRate() {
+      if (!this.report || !this.report.total) return '';
+      return `${Math.round(this.report.resolved / this.report.total * 100)}% do total`;
+    },
+    charts() {
+      if (!this.report) return [];
+      const build = (title, rows) => ({ title, rows, max: Math.max(1, ...rows.map(r => r.total)) });
+      return [
+        build('Chamados por status', this.report.byStatus),
+        build('Chamados por prioridade', this.report.byPriority),
+        build('Chamados por categoria', this.report.byCategory)
+      ];
+    }
+  },
+  methods: {
+    width(value, max) { return `${Math.max(2, value / max * 100)}%`; },
+    share(value) { return this.report.total ? `${Math.round(value / this.report.total * 100)}%` : '0%'; },
+    fetchData() {
+      if (this.filters.startDate && this.filters.endDate && this.filters.startDate > this.filters.endDate) {
+        tfToast('A data inicial deve ser anterior à data final.');
+        return;
+      }
+      const params = [];
+      if (this.filters.startDate) params.push(`startDate=${encodeURIComponent(this.filters.startDate)}:00`);
+      if (this.filters.endDate) params.push(`endDate=${encodeURIComponent(this.filters.endDate)}:59`);
+      this.loading = true;
+      fetch('/api/support/report?' + params.join('&'))
+        .then(r => r.json())
+        .then(data => {
+          if (data.code !== 1) throw new Error(data.message || 'Não foi possível gerar o relatório.');
+          this.report = data.obj;
+        })
+        .catch(e => { this.report = null; tfToast(e.message); })
+        .finally(() => { this.loading = false; });
+    }
+  },
+  mounted() {
+    document.body.classList.remove('light', 'dark'); document.body.classList.add(this.theme);
+    this.fetchData();
+  }
+});
+</script>
+<script src="header.js"></script>
+</body>
+</html>

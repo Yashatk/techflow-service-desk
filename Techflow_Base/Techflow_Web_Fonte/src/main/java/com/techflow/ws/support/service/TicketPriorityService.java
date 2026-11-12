@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.techflow.ws.support.converter.TicketPriorityConverter;
@@ -19,8 +18,11 @@ import jakarta.annotation.PostConstruct;
 @Service
 public class TicketPriorityService {
 
-    @Autowired
-    TicketPriorityRepository ticketPriorityRepository;
+    private final TicketPriorityRepository ticketPriorityRepository;
+
+    public TicketPriorityService(TicketPriorityRepository ticketPriorityRepository) {
+        this.ticketPriorityRepository = ticketPriorityRepository;
+    }
 
     public static Logger log = LogManager.getLogger(TicketPriorityService.class);
 

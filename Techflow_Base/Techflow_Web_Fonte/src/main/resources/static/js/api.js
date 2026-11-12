@@ -11,7 +11,7 @@
   if (!/login\.html$/.test(window.location.pathname)) {
     var session = null;
     try { session = JSON.parse(localStorage.getItem('techflow_session')); } catch (e) { session = null; }
-    if (!session || !session.userId) {
+    if (!session || !session.userId || !session.token) {
       window.location.replace('login.html');
       return;
     }
@@ -50,19 +50,40 @@
     });
   };
 
-  // ---- Duplicate-submit guard: one in-flight request per method+url ----
+  // ---- API calls: Bearer token, expired-session redirect, duplicate-submit guard ----
+  function sessionToken() {
+    try { return (JSON.parse(localStorage.getItem('techflow_session')) || {}).token; } catch (e) { return null; }
+  }
+  function isApi(url) {
+    var u = typeof url === 'string' ? url : (url && url.url) || '';
+    return u.indexOf('/api/') === 0 || u.indexOf(window.location.origin + '/api/') === 0;
+  }
   var inFlight = {};
   var nativeFetch = window.fetch.bind(window);
   window.fetch = function (url, options) {
-    var method = ((options && options.method) || 'GET').toUpperCase();
-    if (method === 'GET') return nativeFetch(url, options);
+    options = Object.assign({}, options);
+    if (isApi(url)) {
+      var token = sessionToken();
+      options.headers = Object.assign({}, options.headers, token ? { Authorization: 'Bearer ' + token } : {});
+    }
+    var method = (options.method || 'GET').toUpperCase();
     var key = method + ' ' + url;
-    if (inFlight[key]) return Promise.reject(new Error('Aguarde a operação em andamento.'));
-    inFlight[key] = true;
-    document.documentElement.classList.add('tf-busy');
-    return nativeFetch(url, options).finally(function () {
-      delete inFlight[key];
-      if (!Object.keys(inFlight).length) document.documentElement.classList.remove('tf-busy');
+    if (method !== 'GET') {
+      if (inFlight[key]) return Promise.reject(new Error('Aguarde a operação em andamento.'));
+      inFlight[key] = true;
+      document.documentElement.classList.add('tf-busy');
+    }
+    return nativeFetch(url, options).then(function (response) {
+      if (response.status === 401 && isApi(url) && !/login\.html$/.test(window.location.pathname)) {
+        localStorage.removeItem('techflow_session');
+        window.location.replace('login.html');
+      }
+      return response;
+    }).finally(function () {
+      if (method !== 'GET') {
+        delete inFlight[key];
+        if (!Object.keys(inFlight).length) document.documentElement.classList.remove('tf-busy');
+      }
     });
   };
 

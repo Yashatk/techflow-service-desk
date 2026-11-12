@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.techflow.ws.support.converter.TicketConverter;
@@ -34,14 +33,17 @@ import jakarta.persistence.criteria.Root;
 @Service
 public class TicketService {
 
-    @Autowired
-    TicketRepository ticketRepository;
+    private final TicketRepository ticketRepository;
 
-    @Autowired
-    TicketDetailRepository ticketDetailRepository;
+    private final TicketDetailRepository ticketDetailRepository;
 
-    @Autowired
-    EntityManager entityManager;
+    private final EntityManager entityManager;
+
+    public TicketService(TicketRepository ticketRepository, TicketDetailRepository ticketDetailRepository, EntityManager entityManager) {
+        this.ticketRepository = ticketRepository;
+        this.ticketDetailRepository = ticketDetailRepository;
+        this.entityManager = entityManager;
+    }
 
     private static Logger log = LogManager.getLogger(TicketService.class);
 

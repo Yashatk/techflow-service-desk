@@ -1,0 +1,19 @@
+# Weekly dependency update PRs (security fixes included).
+version: 2
+updates:
+  - package-ecosystem: maven
+    directory: /Techflow_Base/Techflow_Web_Fonte
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      spring:
+        patterns: ["org.springframework*"]
+  - package-ecosystem: docker
+    directory: /Techflow_Base/Techflow_Web_Fonte
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

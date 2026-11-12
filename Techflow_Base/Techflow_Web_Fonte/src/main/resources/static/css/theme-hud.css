@@ -4,7 +4,6 @@
  * display text. Loaded LAST on every page so it overrides style.css /
  * style-table.css without touching their rules.
  */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&family=Inter:wght@400;500;600&display=swap');
 
 /* ---------- Tokens ---------- */
 body.dark, body:not(.light) {
@@ -627,3 +626,47 @@ body.light .modal-header, body.light .modal-footer { background: var(--tf-bg-2) 
 /* ---------- Busy state: block repeated submits while a request is in flight ---------- */
 .tf-busy .modal button[type=submit] { pointer-events: none; opacity: 0.6; }
 .tf-busy, .tf-busy * { cursor: progress; }
+
+/* ---------- Reports ---------- */
+.tf-report-period { margin: -0.25rem 0 1rem; font-size: 0.85rem; }
+.tf-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+.tf-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--tf-border);
+  border-radius: var(--tf-radius);
+  background: color-mix(in srgb, var(--tf-card) 92%, transparent);
+}
+.tf-stat__label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--tf-muted); }
+.tf-stat__value { font-family: var(--tf-font-display); font-size: 1.9rem; font-weight: 700; color: var(--tf-text-h); line-height: 1.1; }
+.tf-stat__hint { font-size: 0.8rem; color: var(--tf-muted); }
+.tf-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0.9rem; }
+.tf-chart {
+  margin: 0;
+  padding: 1rem 1.1rem 1.1rem;
+  border: 1px solid var(--tf-border);
+  border-radius: var(--tf-radius);
+  background: color-mix(in srgb, var(--tf-card) 92%, transparent);
+}
+.tf-chart__title { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--tf-text-h); margin-bottom: 0.9rem; }
+.tf-bars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.55rem; }
+.tf-bar {
+  display: grid;
+  grid-template-columns: minmax(80px, 34%) 1fr 2.5rem;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.15rem 0.25rem;
+  border-radius: 6px;
+}
+.tf-bar:hover { background: color-mix(in srgb, var(--tf-accent) 8%, transparent); }
+.tf-bar__label { font-size: 0.88rem; color: var(--tf-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tf-bar__track { height: 10px; border-radius: 4px; background: color-mix(in srgb, var(--tf-border) 45%, transparent); overflow: hidden; }
+.tf-bar__fill { display: block; height: 100%; border-radius: 0 4px 4px 0; background: var(--tf-accent); }
+.tf-bar__value { font-family: var(--tf-font-mono); font-size: 0.9rem; color: var(--tf-text-h); text-align: right; }

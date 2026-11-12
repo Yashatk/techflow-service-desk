@@ -3,7 +3,6 @@ package com.techflow.ws.sys.controller;
 import java.time.Instant;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,8 +21,11 @@ import com.techflow.ws.sys.service.SysHistoryService;
 @RequestMapping("/api/sys/history")
 public class SysHistoryController {
 
-    @Autowired
-    private SysHistoryService sysHistoryService;
+    private final SysHistoryService sysHistoryService;
+
+    public SysHistoryController(SysHistoryService sysHistoryService) {
+        this.sysHistoryService = sysHistoryService;
+    }
 
     @GetMapping
     public ResponseEntity<ServiceResponse<List<SysHistoryDTO>>> findBy(

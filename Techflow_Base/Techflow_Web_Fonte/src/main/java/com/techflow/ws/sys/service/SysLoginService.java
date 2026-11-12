@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.techflow.ws.config.JwtAuthFilter;
@@ -26,11 +26,17 @@ public class SysLoginService {
     // Use a strong secret key in production and store it securely!
     private static final long JWT_EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24 hours
 
-    @Autowired
-    SysUserRepository sysUserRepository;
+    private final SysUserRepository sysUserRepository;
 
-    @Autowired
-    SysHistoryRepository sysHistoryRepository;
+    private final SysHistoryRepository sysHistoryRepository;
+
+    private final PasswordEncoder passwordEncoder;
+
+    public SysLoginService(SysUserRepository sysUserRepository, SysHistoryRepository sysHistoryRepository, PasswordEncoder passwordEncoder) {
+        this.sysUserRepository = sysUserRepository;
+        this.sysHistoryRepository = sysHistoryRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     public static final Logger log = LogManager.getLogger(SysLoginService.class);
 
@@ -39,11 +45,9 @@ public class SysLoginService {
         try {
             SysUser user = sysUserRepository.findByUsernameAndSt(username.trim().toLowerCase(),1);
 
-            String hashedPassword = EncryptUtils.md5(password);
-
-            if(user != null && hashedPassword.equals(user.getPassword())) {
+            if(user != null && passwordMatches(user, password)) {
                 // Altera sessão
-                user.setSid(EncryptUtils.md5(java.util.UUID.randomUUID().toString()));
+                user.setSid(java.util.UUID.randomUUID().toString().replace("-", ""));
                 sysUserRepository.save(user);
 
                 // Adiciona histórico
@@ -76,6 +80,23 @@ public class SysLoginService {
             resp.setMessage("Erro ao autenticar usuário: " + e.getMessage());
         }
         return resp;
+    }
+
+    /**
+     * BCrypt check. Accounts still holding a legacy MD5 hash are verified once and
+     * transparently re-hashed with BCrypt (persisted by the caller's save).
+     */
+    private boolean passwordMatches(SysUser user, String rawPassword) {
+        String stored = user.getPassword();
+        if (stored == null || rawPassword == null) return false;
+        if (stored.startsWith("$2")) {
+            return passwordEncoder.matches(rawPassword, stored);
+        }
+        if (stored.equalsIgnoreCase(EncryptUtils.md5(rawPassword))) { // NOSONAR legacy hash, verified only to migrate it
+            user.setPassword(passwordEncoder.encode(rawPassword));
+            return true;
+        }
+        return false;
     }
 
     public ServiceResponse<String> logout(Integer uid) {

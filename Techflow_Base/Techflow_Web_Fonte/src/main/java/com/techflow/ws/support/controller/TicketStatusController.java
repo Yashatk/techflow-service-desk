@@ -4,7 +4,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -16,8 +15,11 @@ import com.techflow.ws.sys.domain.ServiceResponse;
 @RestController
 public class TicketStatusController {
 
-    @Autowired
-    TicketStatusService ticketStatusService;
+    private final TicketStatusService ticketStatusService;
+
+    public TicketStatusController(TicketStatusService ticketStatusService) {
+        this.ticketStatusService = ticketStatusService;
+    }
 
     @GetMapping("api/support/ticket/status")
     public ResponseEntity<ServiceResponse<List<TicketStatusDTO>>> findBy() {

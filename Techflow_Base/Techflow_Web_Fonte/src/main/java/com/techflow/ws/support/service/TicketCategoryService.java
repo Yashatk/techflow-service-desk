@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.techflow.ws.support.converter.TicketCategoryConverter;
@@ -20,8 +19,11 @@ import jakarta.annotation.PostConstruct;
 @Service
 public class TicketCategoryService {
 
-    @Autowired
-    TicketCategoryRepository ticketCategoryRepository;
+    private final TicketCategoryRepository ticketCategoryRepository;
+
+    public TicketCategoryService(TicketCategoryRepository ticketCategoryRepository) {
+        this.ticketCategoryRepository = ticketCategoryRepository;
+    }
 
     private static Logger log = LogManager.getLogger(TicketCategoryService.class);
 

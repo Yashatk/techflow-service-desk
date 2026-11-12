@@ -2,7 +2,6 @@ package com.techflow.ws.sys.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,8 +23,11 @@ import com.techflow.ws.sys.service.SysUserService;
 @RequestMapping("/api/sys/user")
 public class SysUserController {
 
-    @Autowired
-    SysUserService sysUserService;
+    private final SysUserService sysUserService;
+
+    public SysUserController(SysUserService sysUserService) {
+        this.sysUserService = sysUserService;
+    }
 
     // CRUD - CREATE
     @PostMapping

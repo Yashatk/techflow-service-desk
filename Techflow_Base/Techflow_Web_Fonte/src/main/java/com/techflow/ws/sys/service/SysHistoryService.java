@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.techflow.ws.sys.converter.SysHistoryConverter;
@@ -27,11 +26,14 @@ import jakarta.persistence.criteria.Root;
 @Service
 public class SysHistoryService {
 
-    @Autowired
-    private SysHistoryRepository sysHistoryRepository;
+    private final SysHistoryRepository sysHistoryRepository;
 
-    @Autowired
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
+
+    public SysHistoryService(SysHistoryRepository sysHistoryRepository, EntityManager entityManager) {
+        this.sysHistoryRepository = sysHistoryRepository;
+        this.entityManager = entityManager;
+    }
 
     private static Logger log = LogManager.getLogger(SysHistoryService.class);
 

@@ -2,7 +2,6 @@ package com.techflow.ws.support.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,8 +20,11 @@ import com.techflow.ws.sys.domain.ServiceResponse;
 @RequestMapping("/api/support/ticket/category")
 public class TicketCategoryController {
 
-    @Autowired
-    private TicketCategoryService ticketCategoryService;
+    private final TicketCategoryService ticketCategoryService;
+
+    public TicketCategoryController(TicketCategoryService ticketCategoryService) {
+        this.ticketCategoryService = ticketCategoryService;
+    }
 
     @GetMapping
     public ResponseEntity<ServiceResponse<List<TicketCategoryDTO>>> findBy() {

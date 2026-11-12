@@ -36,7 +36,8 @@ Oferecer um portal que organize o atendimento técnico e a comunicação entre s
 - **Fluxo de status** — Aberto → Em Andamento → Resolvido / Cancelado
 - **Prioridades** — Urgente, Alta, Média, Baixa
 - **Cadastros** — categorias, usuários e grupos de acesso com permissões por funcionalidade
-- **Autenticação** — login com token JWT (HMAC-SHA256)
+- **Segurança** — todas as rotas da API exigem token JWT (HMAC-SHA256) no header `Authorization`; login via `POST`; senhas com BCrypt (hashes MD5 antigos são migrados automaticamente no primeiro login); CORS restrito a origens configuradas
+- **Relatórios** — indicadores do período (abertos, em andamento, resolvidos, tempo médio até resolução) e distribuição por status, prioridade e categoria
 - **Auditoria** — histórico somente leitura de logins e alterações, com filtro por tipo e período
 - **Interface** — responsiva (desktop, tablet e celular), tema escuro "HUD" com alternância para claro e i18n de mensagens (pt-BR / en-US)
 - **Mobile** — protótipo Android (Jetpack Compose + Retrofit) para consulta de chamados
@@ -47,8 +48,10 @@ Oferecer um portal que organize o atendimento técnico e a comunicação entre s
 | Login | Edição de chamado |
 |---|---|
 | <img src="docs/screenshots/01-login.png" alt="Login"> | <img src="docs/screenshots/03-editar-chamado.png" alt="Edição de chamado"> |
-| **Usuários e grupos de acesso** | **Tema claro** |
-| <img src="docs/screenshots/04-usuarios.png" alt="Usuários"> | <img src="docs/screenshots/05-tema-claro.png" alt="Tema claro"> |
+| **Relatórios** | **Usuários e grupos de acesso** |
+| <img src="docs/screenshots/08-relatorios.png" alt="Relatórios"> | <img src="docs/screenshots/04-usuarios.png" alt="Usuários"> |
+| **Tema claro** | |
+| <img src="docs/screenshots/05-tema-claro.png" alt="Tema claro"> | |
 
 **Mobile** — layout responsivo com menu lateral deslizante e listas em cartões:
 
@@ -72,7 +75,7 @@ Backlog definido pela equipe, por épico, com estimativa em story points (SP) e 
 | 3. Priorização e Filtros | US06 — Definição de prioridade | 5 | ✅ Entregue |
 | | US07 — Filtros por data, status, prioridade e categoria | 13 | ✅ Entregue |
 | 4. Relatórios e Auditoria | US08 — Log de alterações (auditoria) | 8 | ✅ Entregue |
-| | US09 — Relatórios de desempenho | 13 | ⏳ Pendente |
+| | US09 — Relatórios de desempenho | 13 | ✅ Entregue |
 | 5. Interface Responsiva e Acessibilidade | US10 — Layout responsivo e acessível | 13 | ✅ Entregue |
 | 6. Escalabilidade e Performance | US11 — Otimizações de performance | 13 | 🔄 Parcial |
 
@@ -115,7 +118,9 @@ A API segue camadas `controller → service → repository`, com DTOs e converso
 | Frontend web | HTML5, CSS3, Bootstrap 5, Vue.js |
 | Mobile | Kotlin, Jetpack Compose, Retrofit |
 | Desktop | C#, .NET Framework, WinForms |
-| Qualidade | JUnit 5, GitHub Actions, SonarQube, Semgrep, Trivy |
+| Dados | Flyway (migrations versionadas), SQL Server |
+| Observabilidade | Logs JSON (ECS) com `correlationId` por requisição, erros no formato RFC 7807 |
+| Qualidade | JUnit 5, Mockito, MockMvc, JaCoCo, GitHub Actions, Dependabot, SonarQube, Semgrep, Trivy |
 | Infra | Docker, Docker Compose |
 | Processo | Scrum, Figma, Astah (modelagem) |
 
@@ -154,6 +159,8 @@ mvn spring-boot:run
 | `DB_USERNAME` / `DB_PASSWORD` | sim | Credenciais do banco |
 | `JWT_SECRET` | sim | Chave de assinatura do JWT, mínimo 32 caracteres |
 | `ADMIN_DEFAULT_PASSWORD` | não | Se definida, cria o usuário `admin` no primeiro boot |
+| `APP_TIMEZONE` | não | Fuso usado para interpretar os filtros de data (padrão: `America/Sao_Paulo`) |
+| `CORS_ALLOWED_ORIGINS` | não | Origens liberadas para chamar a API, separadas por vírgula (padrão: `http://localhost:8089`) |
 
 Nenhuma credencial é versionada: tudo vem de variáveis de ambiente (`.env` está no `.gitignore`).
 
@@ -164,10 +171,11 @@ Techflow_Base/
 ├── Techflow_Web_Fonte/          # API Spring Boot + front web
 │   ├── src/main/java/com/techflow/ws/
 │   │   ├── config/              # segurança, JWT, CORS
-│   │   ├── support/             # chamados: controller, service, repository, dto, entity
+│   │   ├── support/             # chamados (controller, service, repository, dto, entity) e relatórios
 │   │   └── sys/                 # usuários, grupos, acessos, histórico
 │   ├── src/main/resources/
 │   │   ├── static/              # páginas web (HTML, CSS, JS)
+│   │   ├── db/migration/        # migrations Flyway (V1 = schema base)
 │   │   └── application.yml
 │   ├── src/test/java/           # testes unitários
 │   ├── docs/database/           # modelo, diagrama, manual, backlog, sprints, seed de demo
@@ -187,15 +195,21 @@ Techflow_Base/
 
 Projeto acadêmico, sem uso em produção. Pontos mapeados para evolução:
 
-- [ ] Exigir autenticação em todos os endpoints (hoje a API está com `permitAll`) e enviar o JWT pelo header `Authorization`
-- [ ] Trocar hash de senha MD5 por BCrypt
-- [ ] Login via `POST` (hoje credenciais trafegam em query string)
-- [ ] Filtros de período considerando o fuso horário do usuário (hoje interpretados como UTC)
-- [ ] US09 — relatórios de desempenho (tempo médio de resposta e resolução)
+- [x] Autenticação obrigatória em todos os endpoints, com JWT no header `Authorization`
+- [x] Hash de senha BCrypt, com migração automática dos hashes MD5
+- [x] Login via `POST` (credenciais fora da URL)
+- [x] CORS restrito a origens configuradas (`CORS_ALLOWED_ORIGINS`)
+- [ ] Cliente desktop consumir a API em vez de conectar direto no banco — até lá, use um usuário de banco com privilégios mínimos, nunca `sa`
+- [x] Filtros de período no fuso do usuário (`APP_TIMEZONE`, padrão America/Sao_Paulo)
+- [x] US09 — relatórios de desempenho
+- [x] Migrations versionadas com Flyway (Hibernate apenas valida o schema)
+- [x] Injeção de dependências por construtor; erros técnicos em RFC 7807; logs JSON com `correlationId`
+- [x] Testes de serviço e de segurança (MockMvc) e cobertura JaCoCo no CI
+- [ ] Ampliar a cobertura de testes dos serviços legados e adicionar testes de integração com Testcontainers
+- [ ] Migrar o front para Vue 3 + Vite + TypeScript (hoje Vue 2 em páginas estáticas)
+- [ ] Integrar o app Android aos endpoints reais da API, com login e token
+- [ ] Publicar uma demo online e levar a análise do SonarQube para o CI
 - [ ] Triagem e classificação automática de chamados com IA (proposta original da equipe)
-- [ ] Migrations versionadas com Flyway no lugar de `ddl-auto: update`
-- [ ] Testes de integração (Testcontainers) e ampliação da cobertura
-- [ ] Integrar o app Android aos endpoints reais da API
 
 ## Equipe original — Tech-Flow
 

@@ -2,7 +2,6 @@ package com.techflow.ws.support.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,8 +14,11 @@ import com.techflow.ws.sys.domain.ServiceResponse;
 @RestController
 public class TicketPriorityController {
 
-    @Autowired
-    private TicketPriorityService ticketPriorityService;
+    private final TicketPriorityService ticketPriorityService;
+
+    public TicketPriorityController(TicketPriorityService ticketPriorityService) {
+        this.ticketPriorityService = ticketPriorityService;
+    }
 
     @GetMapping("api/support/ticket/priority")
     public ResponseEntity<ServiceResponse<List<TicketPriorityDTO>>> findBy() {

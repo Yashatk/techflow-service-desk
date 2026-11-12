@@ -6,15 +6,14 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.techflow.ws.sys.converter.SysUserConverter;
-import com.techflow.ws.sys.domain.EncryptUtils;
 import com.techflow.ws.sys.domain.ServiceResponse;
 import com.techflow.ws.sys.dto.SysUserDTO;
 import com.techflow.ws.sys.entity.SysAccess;
@@ -37,23 +36,29 @@ import jakarta.annotation.PostConstruct;
 @Service
 public class SysUserService implements UserDetailsService {
 
-    @Autowired
-    private SysUserRepository sysUserRepository;
+    private final SysUserRepository sysUserRepository;
 
-    @Autowired
-    private SysGroupRepository sysGroupRepository;
+    private final SysGroupRepository sysGroupRepository;
 
-    @Autowired
-    private SysGroupUserRepository sysGroupUserRepository;
+    private final SysGroupUserRepository sysGroupUserRepository;
 
-    @Autowired
-    private SysGroupAccessRepository sysGroupAccessRepository;
+    private final SysGroupAccessRepository sysGroupAccessRepository;
 
-    @Autowired
-    private SysAccessRepository sysAccessRepository;
+    private final SysAccessRepository sysAccessRepository;
 
-    @Autowired
-    private SysHistoryRepository sysHistoryRepository;
+    private final SysHistoryRepository sysHistoryRepository;
+
+    private final PasswordEncoder passwordEncoder;
+
+    public SysUserService(SysUserRepository sysUserRepository, SysGroupRepository sysGroupRepository, SysGroupUserRepository sysGroupUserRepository, SysGroupAccessRepository sysGroupAccessRepository, SysAccessRepository sysAccessRepository, SysHistoryRepository sysHistoryRepository, PasswordEncoder passwordEncoder) {
+        this.sysUserRepository = sysUserRepository;
+        this.sysGroupRepository = sysGroupRepository;
+        this.sysGroupUserRepository = sysGroupUserRepository;
+        this.sysGroupAccessRepository = sysGroupAccessRepository;
+        this.sysAccessRepository = sysAccessRepository;
+        this.sysHistoryRepository = sysHistoryRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     private static final Logger log = LogManager.getLogger(SysUserService.class);
 
@@ -62,7 +67,7 @@ public class SysUserService implements UserDetailsService {
         // Default admin only when ADMIN_DEFAULT_PASSWORD is provided; no credential lives in the code.
         String adminPassword = System.getenv("ADMIN_DEFAULT_PASSWORD");
         if(adminPassword != null && !adminPassword.isBlank() && !sysUserRepository.existsById(1)) {
-            sysUserRepository.save(new SysUser("admin", EncryptUtils.md5(adminPassword), "Administrador", "admin@example.com"));
+            sysUserRepository.save(new SysUser("admin", passwordEncoder.encode(adminPassword), "Administrador", "admin@example.com"));
         }
         // Cria grupos padrão se não existirem
         List<SysGroup> groups = new ArrayList<>();
@@ -158,8 +163,8 @@ public class SysUserService implements UserDetailsService {
                     return response;
                 }
                 SysUser user = SysUserConverter.convertTo(dto);
-                user.setPassword(EncryptUtils.md5(user.getPassword()));            
-                user.setSid(EncryptUtils.md5(java.util.UUID.randomUUID().toString()));
+                user.setPassword(passwordEncoder.encode(user.getPassword()));            
+                user.setSid(java.util.UUID.randomUUID().toString().replace("-", ""));
                 SysUser savedUser = sysUserRepository.save(user);
                 response.setObj(SysUserConverter.convertToDTO(savedUser, true, true, false));
                 response.setOK();
@@ -200,7 +205,7 @@ public class SysUserService implements UserDetailsService {
             existingUser.setName(user.getName());
             existingUser.setEmail(user.getEmail());
             if(user.getPassword() != null && !user.getPassword().isEmpty()) {
-                existingUser.setPassword(EncryptUtils.md5(user.getPassword()));
+                existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
             }
             SysUser updatedUser = sysUserRepository.save(existingUser);
             response.setObj(SysUserConverter.convertToDTO(updatedUser, true, true, false));
@@ -220,7 +225,7 @@ public class SysUserService implements UserDetailsService {
                 response.setMessage("Usuário não encontrado.");
                 return response;
             }
-            existingUser.setPassword(EncryptUtils.md5(user.getPassword()));
+            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
             sysUserRepository.save(existingUser);
             response.setObj("Senha alterada com sucesso.");
             response.setOK();
