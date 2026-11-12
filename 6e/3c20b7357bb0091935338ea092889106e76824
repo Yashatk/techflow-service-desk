@@ -1,0 +1,57 @@
+README.md
+  s_0f59e7edbb1265::t_316638643a07c7 3,7,10,14-18,22-34,38,40,42,44-48,52-60,64,66-68,70-71,74-75,77,80,87,91-92,94,102,107,114,128-129,133,136-140,143-146,149-152,155-180,182,184,186,188,190,192
+.editorconfig
+  s_0f59e7edbb1265::t_d2eaf3657d5834 1-17
+.gitattributes
+  s_0f59e7edbb1265::t_e9f8a82a1fd2d1 1-13
+.github/CODEOWNERS
+  s_0f59e7edbb1265::t_5a029fd6260eba 1
+.github/ISSUE_TEMPLATE/bug_report.yml
+  s_0f59e7edbb1265::t_07b01b70494498 1-33
+.github/ISSUE_TEMPLATE/config.yml
+  s_0f59e7edbb1265::t_0461be8ab9e215 1-5
+.github/ISSUE_TEMPLATE/feature_request.yml
+  s_0f59e7edbb1265::t_2a8a2e667a1b4b 1-22
+.github/PULL_REQUEST_TEMPLATE.md
+  s_0f59e7edbb1265::t_b69b6e197fb124 1-17
+.github/dependabot.yml
+  s_0f59e7edbb1265::t_00719d28887001 5,13
+.github/workflows/build.yml
+  s_0f59e7edbb1265::t_5be094820c2f32 17,43,51
+CHANGELOG.md
+  s_0f59e7edbb1265::t_6a98a988e78cc2 1-48
+CONTRIBUTING.md
+  s_0f59e7edbb1265::t_3a09aa259cfa54 1-28
+LICENSE
+  s_0f59e7edbb1265::t_d45f8c0eb31a6a 1-22
+SECURITY.md
+  s_0f59e7edbb1265::t_73ef5a6a246eda 1-29
+backend/.dockerignore
+  s_0f59e7edbb1265::t_07edb34dd3aa73 6-7
+backend/docker-compose.yml
+  s_0f59e7edbb1265::t_c8abcf9d0399e8 44
+docs/README.md
+  s_0f59e7edbb1265::t_95f0630a0892ae 1-10
+docs/architecture/README.md
+  s_0f59e7edbb1265::t_89492aaadf5944 1-95
+docs/product/backlog.md
+  s_0f59e7edbb1265::t_e768146e441e3a 1-23
+docs/product/sprints.md
+  s_0f59e7edbb1265::t_21822252ea8c8d 1-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6e3c20b7357bb0091935338ea092889106e76824",
+  "prompts": {},
+  "sessions": {
+    "s_0f59e7edbb1265": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5b01d6fa-77b9-4a00-8e1d-39989fe7a513",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Andre Takamura <121062687+Yashatk@users.noreply.github.com>"
+    }
+  }
+}
