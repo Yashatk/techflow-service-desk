@@ -1,0 +1,13 @@
+# Language statistics: exclude third-party bundles, generated code and docs
+backend/src/main/resources/static/css/bootstrap.min.css linguist-vendored
+backend/src/main/resources/static/js/*.min.js           linguist-vendored
+desktop/**/*.Designer.cs                                linguist-generated
+desktop/**/*.resx                                       linguist-generated
+docs/**                                                 linguist-documentation
+
+# Binary assets
+*.png  binary
+*.jpg  binary
+*.pdf  binary
+*.asta binary
+*.jar  binary

@@ -1,0 +1,22 @@
+name: Melhoria
+description: Proponha uma funcionalidade ou evolução
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema ou necessidade
+      description: Qual dor de quem usa o sistema isso resolve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposta
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Critérios de aceite
+      placeholder: "- Dado … quando … então …"

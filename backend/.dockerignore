@@ -1,0 +1,7 @@
+target/
+.env
+docs/
+css/
+*.md
+logs/
+db/

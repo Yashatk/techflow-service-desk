@@ -2,7 +2,7 @@
 version: 2
 updates:
   - package-ecosystem: maven
-    directory: /Techflow_Base/Techflow_Web_Fonte
+    directory: /backend
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
@@ -10,7 +10,7 @@ updates:
       spring:
         patterns: ["org.springframework*"]
   - package-ecosystem: docker
-    directory: /Techflow_Base/Techflow_Web_Fonte
+    directory: /backend
     schedule:
       interval: weekly
   - package-ecosystem: github-actions

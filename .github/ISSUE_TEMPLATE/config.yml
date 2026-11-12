@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Reportar vulnerabilidade
+    url: https://github.com/Yashatk/techflow-service-desk/security/advisories/new
+    about: Não abra issues públicas para falhas de segurança.
