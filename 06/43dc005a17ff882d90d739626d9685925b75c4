@@ -1,0 +1,14 @@
+.github/workflows/build.yml
+  h_e3201ed497d76c 20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0643dc005a17ff882d90d739626d9685925b75c4",
+  "prompts": {},
+  "humans": {
+    "h_e3201ed497d76c": {
+      "author": "Andre Takamura <121062687+Yashatk@users.noreply.github.com>"
+    }
+  }
+}
