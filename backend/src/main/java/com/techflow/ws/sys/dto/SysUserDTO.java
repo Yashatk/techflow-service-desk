@@ -12,6 +12,7 @@ public class SysUserDTO {
     private Integer st = 1;
     private String username;
     private String password;
+    private String currentPassword;
     private String name;
     private String email;
     private String sid;
@@ -48,6 +49,14 @@ public class SysUserDTO {
 
     public String getPassword() {
         return password;
+    }
+
+    public String getCurrentPassword() {
+        return currentPassword;
+    }
+
+    public void setCurrentPassword(String currentPassword) {
+        this.currentPassword = currentPassword;
     }
 
     public void setPassword(String password) {

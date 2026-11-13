@@ -6,7 +6,10 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -62,6 +65,25 @@ public class SysUserService implements UserDetailsService {
 
     private static final Logger log = LogManager.getLogger(SysUserService.class);
 
+    public static final String ADMIN_GROUP = "Administrador";
+
+    /** The authenticated caller, taken from the validated JWT; never from the request body. */
+    private SysUser currentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth == null ? null : sysUserRepository.findByUsername(auth.getName());
+    }
+
+    private static boolean isAdmin(SysUser user) {
+        return user != null && user.getGroups().stream().anyMatch(g -> ADMIN_GROUP.equals(g.getGroupName()));
+    }
+
+    private static <T> ServiceResponse<T> forbidden(ServiceResponse<T> response) {
+        response.setError();
+        response.setHttpStatus(HttpStatus.FORBIDDEN);
+        response.setMessage("Acesso negado.");
+        return response;
+    }
+
     @PostConstruct
     public void init() {
         // Default admin only when ADMIN_DEFAULT_PASSWORD is provided; no credential lives in the code.
@@ -71,7 +93,7 @@ public class SysUserService implements UserDetailsService {
         }
         // Cria grupos padrão se não existirem
         List<SysGroup> groups = new ArrayList<>();
-        groups.add(new SysGroup("Administrador", "Administradores do sistema"));
+        groups.add(new SysGroup(ADMIN_GROUP, "Administradores do sistema"));
         groups.add(new SysGroup("Analistas", "Analistas de suporte"));
         groups.add(new SysGroup("Clientes", "Clientes"));
         for(SysGroup group : groups) {
@@ -80,7 +102,7 @@ public class SysUserService implements UserDetailsService {
             }
         }
         // Grupo Administrador e Usuário Administrador
-        SysGroup adminGroup = sysGroupRepository.findByGroupName("Administrador");
+        SysGroup adminGroup = sysGroupRepository.findByGroupName(ADMIN_GROUP);
         SysUser adminUser = sysUserRepository.findByUsername("admin");
 
         // Cria acessos padrão se não existirem
@@ -117,6 +139,11 @@ public class SysUserService implements UserDetailsService {
 
     public ServiceResponse<List<SysUserDTO>> getUser(Integer uid) {
         ServiceResponse<List<SysUserDTO>> response = new ServiceResponse<>();
+        SysUser caller = currentUser();
+        // Deny by default: only admins list or read other users; everyone else reads only their own profile.
+        if (caller == null || (!isAdmin(caller) && (uid == null || !uid.equals(caller.getId())))) {
+            return forbidden(response);
+        }
         try {
             List<SysUser> users;
             if(uid == null || uid < 0)
@@ -219,11 +246,24 @@ public class SysUserService implements UserDetailsService {
 
     public ServiceResponse<String> changePassword(SysUserDTO user) {
         ServiceResponse<String> response = new ServiceResponse<>();
+        SysUser caller = currentUser();
+        if (caller == null || user == null || user.getId() == null) {
+            return forbidden(response);
+        }
+        boolean self = user.getId().equals(caller.getId());
+        // Admins may reset other accounts; changing your own password always requires the current one.
+        if (!self && !isAdmin(caller)) {
+            return forbidden(response);
+        }
         try {
             SysUser existingUser = sysUserRepository.findById(user.getId()).orElse(null);
             if(existingUser == null) {
                 response.setMessage("Usuário não encontrado.");
                 return response;
+            }
+            if (self && (user.getCurrentPassword() == null
+                    || !passwordEncoder.matches(user.getCurrentPassword(), existingUser.getPassword()))) {
+                return forbidden(response);
             }
             existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
             sysUserRepository.save(existingUser);

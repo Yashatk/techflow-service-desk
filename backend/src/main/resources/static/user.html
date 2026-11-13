@@ -233,6 +233,10 @@
             </div>
             <form @submit.prevent="changePassword">
               <div class="modal-body">
+                <div class="form-group" v-if="isOwnPassword">
+                  <label for="currentPassword">Senha Atual</label>
+                  <input type="password" class="form-control" id="currentPassword" v-model="passwordData.currentPassword" required>
+                </div>
                 <div class="form-group">
                   <label for="newPassword">Nova Senha</label>
                   <input type="password" class="form-control" id="newPassword" v-model="passwordData.newPassword" required>
@@ -278,11 +282,15 @@ const app = new Vue({
     showPasswordModal: false,
     passwordData: {
       user: null,
+      currentPassword: '',
       newPassword: '',
       confirmNewPassword: ''
     },
   },
   computed: {
+    isOwnPassword() {
+      return !!(this.passwordData.user && this.passwordData.user.id === this.sessionData.userId);
+    },
     mainContentStyle() {
       return {
         paddingTop: '50px',
@@ -406,6 +414,7 @@ const app = new Vue({
     openPasswordModal(cat) {
       this.passwordData = {
         user: cat,
+        currentPassword: '',
         newPassword: '',
         confirmNewPassword: ''
       };
@@ -415,6 +424,7 @@ const app = new Vue({
       this.showPasswordModal = false;
       this.passwordData = {
         user: null,
+        currentPassword: '',
         newPassword: '',
         confirmNewPassword: ''
       };
@@ -429,7 +439,8 @@ const app = new Vue({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: this.passwordData.user.id,
-          password: this.passwordData.newPassword
+          password: this.passwordData.newPassword,
+          currentPassword: this.isOwnPassword ? this.passwordData.currentPassword : null
         })
       })
       .then(tfCheck)
