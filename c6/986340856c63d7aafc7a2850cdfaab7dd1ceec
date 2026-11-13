@@ -1,0 +1,19 @@
+.github/dependabot.yml
+  s_0f59e7edbb1265::t_def8722ae3f99e 2,13-20,25-30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c6986340856c63d7aafc7a2850cdfaab7dd1ceec",
+  "prompts": {},
+  "sessions": {
+    "s_0f59e7edbb1265": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5b01d6fa-77b9-4a00-8e1d-39989fe7a513",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Andre Takamura <121062687+Yashatk@users.noreply.github.com>"
+    }
+  }
+}
