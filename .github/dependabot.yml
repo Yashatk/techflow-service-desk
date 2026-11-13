@@ -1,4 +1,5 @@
 # Weekly dependency update PRs (security fixes included).
+# Breaking upgrades (Spring Boot 4, jjwt 0.12+, new JDK) are ignored here and planned manually.
 version: 2
 updates:
   - package-ecosystem: maven
@@ -9,10 +10,24 @@ updates:
     groups:
       spring:
         patterns: ["org.springframework*"]
+      jjwt:
+        patterns: ["io.jsonwebtoken:*"]
+    ignore:
+      - dependency-name: "org.springframework*"
+        update-types: ["version-update:semver-major"]
+      # jjwt 0.x: minor releases change the API
+      - dependency-name: "io.jsonwebtoken:*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
   - package-ecosystem: docker
     directory: /backend
     schedule:
       interval: weekly
+    ignore:
+      # JDK is pinned to the project's Java release (17)
+      - dependency-name: "eclipse-temurin"
+        update-types: ["version-update:semver-major"]
+      # shortcut: tag 3.9-eclipse-temurin-17 only changes with the JDK, bump it manually on a JDK upgrade
+      - dependency-name: "maven"
   - package-ecosystem: github-actions
     directory: /
     schedule:
